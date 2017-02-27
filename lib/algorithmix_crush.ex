@@ -1,5 +1,43 @@
 defmodule AlgorithmicCrush do
 
+  def read_test_file(path) do
+
+    {:ok, file} = File.read(path)
+
+    instructions = file
+    |> String.split("\n")
+
+    [length, no_of_instructions] = instructions
+      |> List.first
+      |> String.split()
+
+    instructions = instructions |> List.delete_at(0)
+
+    instructions = instructions
+    |> Enum.map( fn(row) ->
+      row
+      |> String.split(" ")
+      |> Enum.map( fn(int) ->
+        int
+        |> String.trim
+        |> String.to_integer
+      end)  
+    end)
+    
+    l = length |> String.to_integer
+    list = for n <- 1..l, do: 0
+
+    solve_with_prefix_sum(list, instructions)
+    |> Enum.reduce(%{max: 0, sum: 0}, fn(x, acc) ->
+       acc = %{acc | :sum => acc.sum + x}
+       if acc.max < acc.sum do
+         acc =  %{acc | :max => acc.sum}
+       end 
+       acc
+    end)
+
+  end
+
   def get_input do
     #parse the list length and no. of instructions from the first line of stdin
     dims = IO.gets ""
@@ -94,40 +132,46 @@ ExUnit.start()
 defmodule AlgorithmicCrushTest do
   use ExUnit.Case
 
-  test "solve" do
-    assert AlgorithmicCrush.solve([0,0,0,0,0], [[1,2,100], [2,5,100], [3,4,100]])
-      == [100, 200, 200, 200, 100]
+  test "load a test file" do
+    assert AlgorithmicCrush.read_test_file("input04.txt") == 2490686975
   end
 
-  test "solve with prefix sum approach" do
-    assert AlgorithmicCrush.solve_with_prefix_sum([0,0,0,0,0], [[1,2,100], [2,5,100], [3,4,100]])
-      == [100, 100, 0, 0, -100]
-  end
+  # test "solve" do
+  #   assert AlgorithmicCrush.solve([0,0,0,0,0], [[1,2,100], [2,5,100], [3,4,100]])
+  #     == [100, 200, 200, 200, 100]
+  # end
+  #
+  # test "solve with prefix sum approach" do
+  #   assert AlgorithmicCrush.solve_with_prefix_sum([0,0,0,0,0], [[1,2,100], [2,5,100], [3,4,100]])
+  #     == [100, 100, 0, 0, -100]
+  # end
+  #
+  # test "sum up prefix sum list" do
+  #   assert AlgorithmicCrush.prefix_sum_list_totals([100, 100, 0, 0, -100], [], 0)
+  #     == [100, 200, 200, 200, 100]
+  # end
+  #
+  # test "test case 1" do
+  #
+  #   assert AlgorithmicCrush.solve([0,0,0,0], [[2,3,603], [1,1,286], [4,4,882]])
+  #     |> Enum.sort
+  #     |> List.last
+  #     == 882
+  #   assert AlgorithmicCrush.solve_with_prefix_sum([0,0,0,0], [[2,3,603], [1,1,286], [4,4,882]])
+  #       |> AlgorithmicCrush.prefix_sum_list_totals([], 0)
+  #       |> Enum.sort
+  #       |> List.last
+  #     == 882
+  # end
+  #
+  # test "test case 13" do
+  #   assert 7542539201 == 7542539201
+  # end
+  #
+  # test "test case 4" do
+  #   assert 2490686975 == 2490686975
+  # end
 
-  test "sum up prefix sum list" do
-    assert AlgorithmicCrush.prefix_sum_list_totals([100, 100, 0, 0, -100], [], 0)
-      == [100, 200, 200, 200, 100]
-  end
 
-  test "test case 1" do
-
-    assert AlgorithmicCrush.solve([0,0,0,0], [[2,3,603], [1,1,286], [4,4,882]])
-      |> Enum.sort
-      |> List.last
-      == 882
-    assert AlgorithmicCrush.solve_with_prefix_sum([0,0,0,0], [[2,3,603], [1,1,286], [4,4,882]])
-        |> AlgorithmicCrush.prefix_sum_list_totals([], 0)
-        |> Enum.sort
-        |> List.last
-      == 882
-  end
-
-  test "test case 13" do
-    assert 7542539201 == 7542539201
-  end
-
-  test "test case 4" do
-    assert 2490686975 == 2490686975
-  end
 
 end
